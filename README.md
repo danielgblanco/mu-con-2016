@@ -267,7 +267,7 @@ We will use the latter:
 
 ```
 aws cloudformation create-stack --stack-name skipjaq-web \
-    --template-body \file:///path/to/elb-asg.yml \
+    --template-body \file:///path/to/skipjaq-web.yml \
     --parameters ParameterKey=AmiId,ParameterValue=ami-a123b456,ParameterKey=InstanceType,ParameterValue=m3.medium
 ```
 
