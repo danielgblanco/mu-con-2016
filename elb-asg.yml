@@ -130,3 +130,26 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: 1
         MaxBatchSize: 1
+  WebScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref WebAutoScalingGroup
+      Cooldown: '15'
+      ScalingAdjustment: '1'
+  WebHighCpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Average
+      Threshold: '50'
+      AlarmDescription: CPU too high or metric does not exist (instance down)
+      Period: '60'
+      AlarmActions:
+      - !Ref WebScaleUpPolicy
+      Namespace: AWS/EC2
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref WebAutoScalingGroup
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization
