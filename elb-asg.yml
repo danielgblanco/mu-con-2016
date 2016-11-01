@@ -1,0 +1,132 @@
+Parameters:
+  AmiId:
+    Type: String
+    Default: ami-a123b456
+  InstanceType:
+    Type: String
+    Default: t2.medium
+
+Resources:
+  WebVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: skipjaq-web
+  WebPublicA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref WebVpc
+  WebPublicB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: eu-west-1b
+      VpcId: !Ref WebVpc
+
+  WebInternetGateway:
+    Type: AWS::EC2::InternetGateway
+  WebInternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref WebInternetGateway
+      VpcId: !Ref WebVpc
+  WebPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref WebVpc
+  WebPublicRouteToInternet:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref WebInternetGateway
+      RouteTableId: !Ref WebPublicRouteTable
+  WebPublicRouteTableSubnetA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref WebPublicRouteTable
+      SubnetId: !Ref WebPublicA
+  WebPublicRouteTableSubnetB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref WebPublicRouteTable
+      SubnetId: !Ref WebPublicB
+
+  WebLBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for web load balancer
+      VpcId: !Ref WebVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+  WebTargetsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for web targets
+      VpcId: !Ref WebVpc
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        SourceSecurityGroupId: !Ref WebLBSecurityGroup
+
+  WebLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+      - !Ref WebPublicA
+      - !Ref WebPublicB
+      SecurityGroups:
+      - !Ref WebLBSecurityGroup
+  WebTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 15
+      UnhealthyThresholdCount: 8
+      HealthCheckPort: 8080
+      HealthCheckPath: /health
+      Name: skipjaq-web
+      Port: 8080
+      Protocol: HTTP
+      VpcId: !Ref WebVpc
+  WebServiceListener:
+    Type : AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref WebTargetGroup
+      LoadBalancerArn: !Ref WebLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  WebLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref InstanceType
+      SecurityGroups:
+        - !Ref WebTargetsSecurityGroup
+  WebAutoScaleGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref WebPublicA
+        - !Ref WebPublicB
+      LaunchConfigurationName: !Ref WebLaunchConfiguration
+      MinSize: 2
+      MaxSize: 5
+      TargetGroupARNs:
+        - !Ref WebTargetGroup
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 1
