@@ -266,7 +266,9 @@ To do so, we can use the AWS Console, any of their SDKs or the AWS CLI client.
 We will use the latter:
 
 ```
-aws cloudformation create-stack --stack-name skipjaq-web --template-body file:///path/to/elb-asg.yml --parameters ParameterKey=AmiId,ParameterValue=ami-a123b456,ParameterKey=InstanceType,ParameterValue=m3.medium
+aws cloudformation create-stack --stack-name skipjaq-web \
+    --template-body \file:///path/to/elb-asg.yml \
+    --parameters ParameterKey=AmiId,ParameterValue=ami-a123b456,ParameterKey=InstanceType,ParameterValue=m3.medium
 ```
 
 This assumes that we have credentials and default region configured.
