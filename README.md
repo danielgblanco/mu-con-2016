@@ -38,7 +38,7 @@ website replicas:
 ```yaml
   AmiId:
     Type: String
-    Default: ami-adc194de
+    Default: ami-93cf9ae0
   InstanceType:
     Type: String
     Default: t2.medium
