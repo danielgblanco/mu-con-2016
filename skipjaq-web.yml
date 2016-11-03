@@ -17,16 +17,40 @@ Resources:
         - Key: Name
           Value: skipjaq-web
   WebPublicA:
-    Type: AWS::EC2::Subnet
-    Properties:
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: eu-west-1a
-      VpcId: !Ref WebVpc
+      Type: AWS::EC2::Subnet
+      Properties:
+        CidrBlock: 10.0.1.0/24
+        AvailabilityZone: eu-west-1a
+        VpcId: !Ref WebVpc
   WebPublicB:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: eu-west-1b
+      VpcId: !Ref WebVpc
+  WebPublicC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: eu-west-1c
+      VpcId: !Ref WebVpc
+  WebPrivateA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.100.0/24
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref WebVpc
+  WebPrivateB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.101.0/24
+      AvailabilityZone: eu-west-1b
+      VpcId: !Ref WebVpc
+  WebPrivateC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.102.0/24
+      AvailabilityZone: eu-west-1c
       VpcId: !Ref WebVpc
 
   WebInternetGateway:
@@ -56,6 +80,11 @@ Resources:
     Properties:
       RouteTableId: !Ref WebPublicRouteTable
       SubnetId: !Ref WebPublicB
+  WebPublicRouteTableSubnetC:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref WebPublicRoutingTable
+      SubnetId: !Ref WebPublicC
 
   WebLBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -85,18 +114,19 @@ Resources:
       Subnets:
       - !Ref WebPublicA
       - !Ref WebPublicB
+      - !Ref WebPublicC
       SecurityGroups:
       - !Ref WebLBSecurityGroup
   WebTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
+      Name: skipjaq-web
+      Port: 8080
+      Protocol: HTTP
       HealthCheckIntervalSeconds: 15
       UnhealthyThresholdCount: 8
       HealthCheckPort: 8080
       HealthCheckPath: /health
-      Name: skipjaq-web
-      Port: 8080
-      Protocol: HTTP
       VpcId: !Ref WebVpc
   WebServiceListener:
     Type : AWS::ElasticLoadBalancingV2::Listener
@@ -119,8 +149,9 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - !Ref WebPublicA
-        - !Ref WebPublicB
+        - !Ref WebPrivateA
+        - !Ref WebPrivateB
+        - !Ref WebPrivateC
       LaunchConfigurationName: !Ref WebLaunchConfiguration
       MinSize: 2
       MaxSize: 5
@@ -135,14 +166,14 @@ Resources:
     Properties:
       AdjustmentType: ChangeInCapacity
       AutoScalingGroupName: !Ref WebAutoScalingGroup
-      Cooldown: '15'
+      Cooldown: '120'
       ScalingAdjustment: '1'
   WebHighCpuAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       EvaluationPeriods: '1'
       Statistic: Average
-      Threshold: '50'
+      Threshold: '60'
       AlarmDescription: CPU too high or metric does not exist (instance down)
       Period: '60'
       AlarmActions:
