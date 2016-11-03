@@ -405,25 +405,35 @@ instances serving requests in all availability zones in a region.
 
 <a id="link1"/>\[1\]: [Virtual Private Cloud][1] - General page for AWS Virtual
 Private Networks
+
 <a id="link2"/>\[2\]: [Elastic Load Balancing][2] - General page for AWS Elastic
 Load Balancing
+
 <a id="link3"/>\[3\]: [Auto Scaling][3] - General page for AWS Auto Scaling
+
 <a id="link4"/>\[4\]: [AWS CloudFormation][4] - General page for AWS
 CloudFormation
+
 <a id="link5"/>\[5\]: [Your VPC and Subnets][5] - VPC and subnet routing and
 best practices
+
 <a id="link6"/>\[6\]: [Internet Gateways][6] - How to enable Internet access in
 a VPC
+
 <a id="link7"/>\[7\]: [Update Policy][7] - How to define Update Policies for an
 ASG with all the possible options
+
 <a id="link8"/>\[8\]: [Dynamic Scaling][8] - What Dynamic Scaling is and how it
 is configured
+
 <a id="link9"/>\[9\]: [Instance Termination][9] - Different types of instance
 termination, including how AWS terminates them by default
-<a id="link10/">\[10\]: [CloudFormation Change Sets][10] - Information about
+
+<a id="link10"/>\[10\]: [CloudFormation Change Sets][10] - Information about
 CloudFormation Change Sets and how they are applied
-<a id="link10/">\[10\]: [Rolling Updates with CloudFormation][10] - Short
-article explaning how rolling updates work with CloudFormation
+
+<a id="link11"/>\[11\]: [Rolling Updates with CloudFormation][11] - Short
+article explaining how rolling updates work with CloudFormation
 
 [1]: https://aws.amazon.com/vpc "Virtual Private Cloud"
 [2]: https://aws.amazon.com/elasticloadbalancing "Elastic Load Balancing"
