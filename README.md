@@ -38,7 +38,7 @@ website replicas:
 ```yaml
   AmiId:
     Type: String
-    Default: ami-a123b567
+    Default: ami-a123b456
   InstanceType:
     Type: String
     Default: t2.medium
@@ -156,7 +156,7 @@ and route all traffic to internet to it [\[6\]](#link6):
   WebPublicRouteTableSubnetC:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref WebPublicRoutingTable
+      RouteTableId: !Ref WebPublicRouteTable
       SubnetId: !Ref WebPublicC
 ```
 
@@ -172,7 +172,7 @@ the ELB).
 
 ```yaml
   WebLBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup 
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for web load balancer
       VpcId: !Ref WebVpc
@@ -182,7 +182,7 @@ the ELB).
         ToPort: 80
         CidrIp: 0.0.0.0/0
   WebTargetsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup 
+    Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for web targets
       VpcId: !Ref WebVpc

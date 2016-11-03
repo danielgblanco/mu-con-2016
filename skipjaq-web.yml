@@ -83,7 +83,7 @@ Resources:
   WebPublicRouteTableSubnetC:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref WebPublicRoutingTable
+      RouteTableId: !Ref WebPublicRouteTable
       SubnetId: !Ref WebPublicC
 
   WebLBSecurityGroup:
@@ -145,7 +145,7 @@ Resources:
       InstanceType: !Ref InstanceType
       SecurityGroups:
         - !Ref WebTargetsSecurityGroup
-  WebAutoScaleGroup:
+  WebAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
@@ -153,14 +153,14 @@ Resources:
         - !Ref WebPrivateB
         - !Ref WebPrivateC
       LaunchConfigurationName: !Ref WebLaunchConfiguration
-      MinSize: 2
-      MaxSize: 5
+      MinSize: 6
+      MaxSize: 15
       TargetGroupARNs:
         - !Ref WebTargetGroup
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MinInstancesInService: 1
-        MaxBatchSize: 1
+        MinInstancesInService: 3
+        MaxBatchSize: 3
   WebScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
