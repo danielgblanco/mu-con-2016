@@ -21,7 +21,7 @@ The first thing to do is to open a text editor and create a YAML file (e.g.
 which we will later tell AWS to create and manage. Our template will contain
 two main blocks:
 
-```
+```yaml
 Parameters:
   # Template parameters
 Resources:
@@ -35,7 +35,7 @@ can be referenced later in the template to achieve better re-usability. We
 will define an `AmiId` and an `InstanceType` that will use to create our
 website replicas:
 
-```
+```yaml
   AmiId:
     Type: String
     Default: ami-a123b567
@@ -60,7 +60,7 @@ Here we define a VPC for our stack, isolated from other resources in the region
 in its own virtual network, along with a private and  a public subnet for each
 availability zone, each with their respective CIDR blocks [\[5\]](#link5):
 
-```
+```yaml
   WebVpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -125,7 +125,7 @@ The VPC created above is completely isolated and has no access to internet.
 In order for it to have access to internet we need to create an internet gateway
 and route all traffic to internet to it [\[6\]](#link6):
 
-```
+```yaml
   WebInternetGateway:
     Type: AWS::EC2::InternetGateway
   WebInternetGatewayAttachment:
@@ -170,7 +170,7 @@ traffic, Security Groups. The two following security groups will allow traffic
 only on port 80 to the ELB and port 8080 to our web servers (coming only from
 the ELB).
 
-```
+```yaml
   WebLBSecurityGroup:
     Type: AWS::EC2::SecurityGroup 
     Properties:
@@ -205,7 +205,7 @@ any EC2 instances created there as part of the ELB). This is because an
 Internet-facing ELB needs to be associated with at least 2 public subnets, in
 different availability zones within your VPC.
 
-```
+```yaml
   WebLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -224,7 +224,7 @@ web server is ready to accept requests. This will especially important when
 applying updates to make sure that there is always a number of replicas ready
 to accept requests.
    
-```
+```yaml
   WebTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -242,7 +242,7 @@ Now that we have an ELB and a Target Group we can add the configuration to have
 the ELB listen on port 80 for HTTP and forward all requests to the target group
 configured above.
 
-```
+```yaml
   WebServiceListener:
     Type : AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -264,7 +264,7 @@ With this Launch Configuration we can create an Auto Scaling Group that will
 have a minimum of 6 instances, 2 per availability zone, and maximum of 15,
 associated with our private networks.
 
-```
+```yaml
   WebLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -308,7 +308,7 @@ and then wait for a cool-down period before adding more instances. This scaling
 event is triggered by an alarm that will be raised when the average CPU usage of
 one instance is higher than 60% for a minute.
 
-```
+```yaml
   WebScaleUpPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
@@ -345,7 +345,7 @@ Now that we have our CloudFormation template completed, it is time to create it.
 To do so, we can use the AWS Console, any of their SDKs or the AWS CLI client.
 We will use the latter:
 
-```
+```bash
 aws cloudformation create-stack --stack-name skipjaq-web \
     --template-body \file:///path/to/skipjaq-web.yml \
     --parameters ParameterKey=AmiId,ParameterValue=ami-a123b456,ParameterKey=InstanceType,ParameterValue=m3.medium
@@ -354,7 +354,7 @@ aws cloudformation create-stack --stack-name skipjaq-web \
 This assumes that we have credentials and default region configured. We can
 check the status of the resources in the stack with the following command:
 
-```
+```bash
 aws cloudformation describe-stack-resources --stack-name skipjaq-web
 ```
 
@@ -373,7 +373,7 @@ we can use the same template we already have, but this time we change the
 `AmiId` parameter to update the Launch Configuration. We start by creating a
 Change Set:
 
-```
+```bash
 aws cloudformation create-change-set --stack-name skipjaq-web \
     --change-set-name skipjaq-web-new-image
     --use-previous-template
@@ -382,13 +382,13 @@ aws cloudformation create-change-set --stack-name skipjaq-web \
 
 We review the changes that will be made before proceeding:
 
-```
+```bash
 aws cloudformation describe-change-set --change-set-name skipjaq-web-new-image
 ```
 
 And then we execute the change set:
 
-```
+```bash
 aws cloudformation execute-change-set --change-set-name skipjaq-web-new-image
 ```
 
