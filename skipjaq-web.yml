@@ -120,7 +120,6 @@ Resources:
   WebTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: skipjaq-web
       Port: 8080
       Protocol: HTTP
       HealthCheckIntervalSeconds: 15
@@ -161,26 +160,7 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: 3
         MaxBatchSize: 3
-  WebScaleUpPolicy:
-    Type: AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AdjustmentType: ChangeInCapacity
-      AutoScalingGroupName: !Ref WebAutoScalingGroup
-      Cooldown: '120'
-      ScalingAdjustment: '1'
-  WebHighCpuAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      EvaluationPeriods: '1'
-      Statistic: Average
-      Threshold: '60'
-      AlarmDescription: CPU too high or metric does not exist (instance down)
-      Period: '60'
-      AlarmActions:
-      - !Ref WebScaleUpPolicy
-      Namespace: AWS/EC2
-      Dimensions:
-      - Name: AutoScalingGroupName
-        Value: !Ref WebAutoScalingGroup
-      ComparisonOperator: GreaterThanThreshold
-      MetricName: CPUUtilization
+
+Outputs:
+  WebLoadBalancerDNSName:
+    Value: !GetAtt WebLoadBalancer.DNSName

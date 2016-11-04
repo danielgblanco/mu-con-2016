@@ -228,7 +228,6 @@ to accept requests.
   WebTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: skipjaq-web
       Port: 8080
       Protocol: HTTP
       HealthCheckIntervalSeconds: 15
