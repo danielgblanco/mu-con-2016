@@ -14,6 +14,10 @@ Groups (ASG) [\[3\]](#link3). In order to do this, we will use CloudFormation
 [\[4\]](#link4) to create and update the stack easily, applying rolling updates while
 maintaining high availability.
 
+The following diagram illustrates the stack we will be creating;
+
+![Architecture](architecture.png)
+
 ## Building the stack
 
 The first thing to do is to open a text editor and create a YAML file (e.g. 
