@@ -125,6 +125,7 @@ Notice the use of `!Ref` to reference to other parts of the template. Each AWS
 resource has a return type associated with the `Ref` function (ID normally).
 
 #### Access from/to Internet
+
 The VPC created above is completely isolated and has no access to internet.
 In order for it to have access to internet we need to create an internet gateway
 and route all traffic to internet to it [\[6\]](#link6):
@@ -169,6 +170,7 @@ with our instances being protected in private networks not reachable from
 outside.
 
 #### Tightening security
+
 Apart from network ACLs, AWS provides a more strict way of limiting network
 traffic, Security Groups. The two following security groups will allow traffic
 only on port 80 to the ELB and port 8080 to our web servers (coming only from
@@ -201,6 +203,7 @@ It is worth noting that AWS allows all outgoing traffic if no egress rules are
 given.
 
 #### Adding the load balancer
+
 Now that we have all the networking set up, it is time to add our ELB. The
 snippet below adds an Internet-facing ELB associated with our public subnets,
 one per availability zone. You might be wondering why we create 3 public
@@ -258,6 +261,7 @@ configured above.
 ```
 
 #### Horizontal scaling
+
 After creating our ELB it is time to add instances that this ELB will direct
 traffic to as part of a target group. The first step is to create a Launch
 Configuration that defines what type of instance and image we want to use for
@@ -343,7 +347,21 @@ terminated can also be configured, but if not defined the default
 policy is designed to help ensure that our network architecture spans
 Availability Zones evenly [\[9\]](#link9).
 
+### Getting information out of the stack
+
+CloudFormation templates may optionally include an `Outputs` section where
+information can be retrieved from the created resources and printed as soon
+as it is available. In this case, we are going to output the DNS name of the
+ELB we defined in our tempalte:
+
+```yaml
+Outputs:
+  WebLoadBalancerDNSName:
+    Value: !GetAtt WebLoadBalancer.DNSName
+```
+
 ## Creating the stack
+
 Now that we have our CloudFormation template completed, it is time to create it.
 To do so, we can use the AWS Console, any of their SDKs or the AWS CLI client.
 We will use the latter:
